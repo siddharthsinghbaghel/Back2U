@@ -4,9 +4,9 @@ import cors from "cors"
 
 import cookieParser from "cookie-parser"
 
-import userRouter from "../src/routers/user.routes.js"
+import userRouter from "./routers/user.routes.js"
 
-import reportRouter from "../src/routers/report.routes.js"
+import reportRouter from "./routers/report.routes.js"
 import {rateLimit} from "express-rate-limit"
 import dotenv from 'dotenv';
 dotenv.config();
