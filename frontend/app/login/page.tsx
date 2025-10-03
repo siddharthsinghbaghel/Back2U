@@ -35,7 +35,7 @@ export default function LoginPage() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true)
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}users/login`, {
+      const response = await fetch("http://localhost:8000/api/v1/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

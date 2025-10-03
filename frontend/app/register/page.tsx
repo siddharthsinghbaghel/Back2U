@@ -49,7 +49,7 @@ export default function RegisterPage() {
   async function onSubmit(data: RegisterFormValues) {
     setIsLoading(true)
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}users/register`, {
+      const response = await fetch("http://localhost:8000/api/v1/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

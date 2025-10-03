@@ -73,41 +73,47 @@ const loginUser = asyncHandler(async(req,res)=>{
       )
     })
 
-const registerUser = asyncHandler(async(req,res)=>{
-    const {email,password,username,name,number} = req.body
+// controllers/user.controller.js
+const registerUser = asyncHandler(async (req, res) => {
+  const { email, password, username, name, number } = req.body;
 
-    if(!email || !password || !username ||!name){
-        throw new ApiError(401,"All the feilds are required")
-    }
+  if (!email || !password || !username || !name) {
+    throw new ApiError(400, "All the fields are required");
+  }
 
-    const existedUser = await User.findOne({
-        $or:[{email},{username}]
-    })
+  const normEmail = String(email).trim().toLowerCase();
+  const normUsername = String(username).trim().toLowerCase();
 
-    if(existedUser){
-        throw new ApiError(401,"User Already Exist")
-    }
+  const existedUser = await User.findOne({
+    $or: [{ email: normEmail }, { username: normUsername }],
+  });
+  if (existedUser) {
+    throw new ApiError(409, "User already exists");
+  }
 
-    const user = await User.create({
-        email,
-        password,
-        username:username.toLowerCase(),
-        name,
-        number
-    })
+  const user = await User.create({
+    email: normEmail,
+    password,
+    username: normUsername,
+    name,
+    number,
+  });
 
-    const createdUser = await User.findById(user._id).select(
-        "-password -refreshToken"
-    )
+  const createdUser = await User.findById(user._id).select("-password -refreshToken");
+  if (!createdUser) {
+    throw new ApiError(500, "User creation failed");
+  }
 
-    if(!createdUser){
-        throw new ApiError(500,"Something went wrong ")
-     }
+  // optionally auto-login
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
+  return res
+    .status(201)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(new ApiResponse(201, { user: createdUser, accessToken, refreshToken }, "User created successfully"));
+});
 
-    return res.status(200).json(new ApiResponse(200,createdUser,"User Created Successfully ")) 
-
-    })
 
 const logout = asyncHandler(async(req,res)=>{
     await User.findByIdAndUpdate(
